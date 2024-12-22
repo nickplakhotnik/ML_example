@@ -1,0 +1,45 @@
+name: Run Cypress Tests with Server
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+      - "*"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.x"
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt  # Встановлення залежностей для вашого Python серверу
+
+      - name: Start Python server in background
+        run: |
+          nohup python server/app.py &  # Запуск сервера у фоновому режимі
+          sleep 10  # Чекаємо, поки сервер запуститься
+
+      - name: Install Node.js dependencies
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+
+      - name: Install Cypress
+        run: |
+          npm install  # Встановлення всіх залежностей проекту (зокрема Cypress)
+
+      - name: Run Cypress tests
+        run: |
+          npx cypress run  # Запуск тестів Cypress
